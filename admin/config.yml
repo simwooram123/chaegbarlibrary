@@ -1,52 +1,27 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: simwooram123/chaegbarlibrary
   branch: main
 
-media_folder: "static/uploads"
-public_folder: "/static/uploads"
+media_folder: "data/uploads"
+public_folder: "/uploads"
 
 collections:
   - name: "books"
-    label: "책 목록"
-    delete: true
-    editor:
-      preview: false
-    files:
-      - name: "booklist"
-        label: "책 목록 (JSON)"
-        file: "data/books.json"
-        fields:
-          - label: "Books"
-            name: "books"
-            widget: "list"
-            collapsed: false
-            fields:
-              - { label: "제목",    name: "title",    widget: "string" }
-              - { label: "저자",    name: "author",   widget: "string", required: false }
-              - { label: "위치",    name: "location", widget: "string", required: false }
-
-  - name: "site"
-    label: "사이트 설정"
-    files:
-      - name: "hero"
-        label: "홍보 이미지 설정"
-        file: "data/site.json"
-        fields:
-          - { label: "홍보 이미지", name: "hero", widget: "image" }
+    label: "Books"
+    folder: "data/books"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Author", name: "author", widget: "string" }
+      - { label: "Location", name: "location", widget: "string" }
 
   - name: "comments"
-    label: "손님 코멘트"
-    delete: true
-    editor:
-      preview: false
-    files:
-      - name: "commentlist"
-        label: "코멘트 (JSON)"
-        file: "data/comments.json"
-        fields:
-          - label: "Comments"
-            name: "comments"
-            widget: "list"
-            fields:
-              - { label: "닉네임", name: "name", widget: "string" }
-              - { label: "내용",   name: "message", widget: "text" }
+    label: "Comments"
+    folder: "data/comments"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Name", name: "name", widget: "string", default: "Anonymous" }
+      - { label: "Message", name: "message", widget: "text" }
