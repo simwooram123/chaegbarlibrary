@@ -1,10 +1,11 @@
 backend:
-  name: github
-  repo: simwooram123/chaegbarlibrary
+  name: git-gateway
   branch: main
+  identity_url: https://chaegbarlibrary.netlify.app/.netlify/identity
+  gateway_url: https://chaegbarlibrary.netlify.app/.netlify/git
 
 media_folder: "data/uploads"
-public_folder: "/uploads"
+public_folder: "/data/uploads"
 
 collections:
   - name: "books"
@@ -13,15 +14,17 @@ collections:
     create: true
     slug: "{{slug}}"
     fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Author", name: "author", widget: "string" }
-      - { label: "Location", name: "location", widget: "string" }
+      - { label: "제목", name: "title", widget: "string" }
+      - { label: "저자", name: "author", widget: "string" }
+      - { label: "위치", name: "location", widget: "string" }
+      - { label: "이미지", name: "image", widget: "image", required: false }
 
   - name: "comments"
-    label: "Comments"
+    label: "Book Comments"
     folder: "data/comments"
     create: true
-    slug: "{{slug}}"
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
-      - { label: "Name", name: "name", widget: "string", default: "Anonymous" }
-      - { label: "Message", name: "message", widget: "text" }
+      - { label: "닉네임", name: "name", widget: "string" }
+      - { label: "내용", name: "body", widget: "text" }
+      - { label: "작성일", name: "date", widget: "datetime", format: "YYYY-MM-DD HH:mm" }
