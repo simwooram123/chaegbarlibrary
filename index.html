@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>책바의 서재</title>
+
+  <!-- React / ReactDOM / Babel -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const HERO_IMG = "./hero.webp";
+    const norm = (s) => (s || "").toString().trim().toLowerCase();
+
+    // 코멘트 로컬 저장
+    function useLocalStorage(key, initial) {
+      const [value, setValue] = useState(() => {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : initial;
+        } catch {
+          return initial;
+        }
+      });
+
+      const set = (v) => {
+        const val = typeof v === "function" ? v(value) : v;
+        setValue(val);
+        try {
+          localStorage.setItem(key, JSON.stringify(val));
+        } catch {}
+      };
+
+      return [value, set];
+    }
+
+    function Header({ keyword, setKeyword }) {
+      return (
+        <header className="w-full bg-white/90 backdrop-blur border-b sticky top-0 z-20">
+          <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xl md:text-2xl font-bold">📖 책바의 서재</span>
+            </div>
+            <a
+              href="/admin"
+              className="text-[11px] text-gray-400 hover:text-gray-800 underline"
+            >
+              관리자
+            </a>
+          </div>
+          <div className="max-w-3xl mx-auto px-4 pb-3">
+            <input
+              type="search"
+              placeholder="책 제목 또는 작가로 검색해보세요."
+              className="w-full h-11 px-4 rounded-2xl border border-gray-200 shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+            />
+          </div>
+        </header>
+      );
+    }
+
+    function Promo() {
+      return (
+        <section className="w-full mt-4 flex flex-col items-center">
+          <div className="w-full max-w-xs sm:max-w-sm px-4">
+            <img
+              src={HERO_IMG}
+              alt="책바 홍보 이미지"
+              className="w-full h-auto object-contain rounded-2xl shadow-md"
+            />
+          </div>
+          <p className="mt-3 text-xs text-gray-600 text-center italic">
+            바 테이블에 샘플이 있습니다. 편하게 골라 읽어보세요.
+          </p>
+        </section>
+      );
+    }
+
+    function BookTable({ books, keyword }) {
+      const q = norm(keyword);
+      // 검색어가 없으면 아예 아무것도 그리지 않음
+      if (!q) return null;
+
+      const filtered = books.filter((b) =>
+        (norm(b.title) + " " + norm(b.author)).includes(q)
+      );
+
+      return (
+        <section className="max-w-3xl mx-auto px-4 mt-5">
+          <div className="flex justify-between items-center mb-2 text-xs text-gray-500">
+            <span>총 {books.length}권 중 검색</span>
+            <span>검색 결과 {filtered.length}권</span>
+          </div>
+          <div className="overflow-x-auto bg-white rounded-2xl shadow-sm border border-gray-100">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-gray-50 text-gray-600 text-xs">
+                <tr>
+                  <th className="px-3 py-2 w-1/2">이름</th>
+                  <th className="px-3 py-2 w-1/4">저자</th>
+                  <th className="px-3 py-2 w-1/4">위치</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((b) => (
+                  <tr
+                    key={b.id}
+                    className="border-t border-gray-100 hover:bg-gray-50"
+                  >
+                    <td className="px-3 py-2 align-top">{b.title}</td>
+                    <td className="px-3 py-2 align-top text-gray-700">
+                      {b.author}
+                    </td>
+                    <td className="px-3 py-2 align-top text-gray-600 text-xs">
+                      {b.location}
+                    </td>
+                  </tr>
+                ))}
+                {filtered.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={3}
+                      className="px-3 py-6 text-center text-xs text-gray-400"
+                    >
+                      검색 결과가 없습니다.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      );
+    }
+
+    function CommentBox({ onAdd }) {
+      const [text, setText] = useState("");
+
+      const submit = () => {
+        if (!text.trim()) return;
+        onAdd(text.trim());
+        setText("");
+        alert("코멘트가 저장되었습니다. 바에서만 확인 가능합니다.");
+      };
+
+      return (
+        <section className="max-w-3xl mx-auto px-4 mt-7 mb-6">
+          <h2 className="text-sm font-semibold mb-2">
+            💬 책 추천 / 책바에 대한 코멘트
+          </h2>
+          <textarea
+            className="w-full border border-gray-200 rounded-xl p-3 text-sm min-h-[90px] resize-none focus:outline-none focus:ring-2 focus:ring-gray-900"
+            placeholder="익명으로 책 추천 또는 책바에 대한 이야기를 남겨주세요."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
+          <div className="flex justify-end mt-2">
+            <button
+              onClick={submit}
+              className="px-4 py-2 rounded-full bg-gray-900 text-white text-xs font-medium hover:bg-black"
+            >
+              코멘트 남기기
+            </button>
+          </div>
+          <p className="mt-1 text-[11px] text-gray-500">
+            작성된 코멘트는 화면에는 표시되지 않고, 바에서만 따로 확인합니다.
+          </p>
+        </section>
+      );
+    }
+
+    function App() {
+      const [books, setBooks] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState(null);
+      const [keyword, setKeyword] = useState("");
+      const [comments, setComments] = useLocalStorage("chaegbar_comments", []);
+
+      useEffect(() => {
+        async function load() {
+          try {
+            const res = await fetch("./data/books.json?cachebust=" + Date.now(), {
+              cache: "no-store",
+            });
+            if (!res.ok) throw new Error("failed");
+            const json = await res.json();
+            const arr = Array.isArray(json)
+              ? json
+              : Array.isArray(json.books)
+              ? json.books
+              : [];
+            setBooks(arr);
+          } catch (e) {
+            console.error(e);
+            setError("책 목록을 불러오지 못했습니다.");
+          } finally {
+            setLoading(false);
+          }
+        }
+        load();
+      }, []);
+
+      const addComment = (text) => {
+        const c = {
+          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+          text,
+          createdAt: new Date().toISOString(),
+        };
+        setComments((prev) => [...prev, c]);
+      };
+
+      return (
+        <div className="min-h-screen flex flex-col">
+          <Header keyword={keyword} setKeyword={setKeyword} />
+
+          <main className="flex-1 pb-6">
+            <Promo />
+
+            {loading && (
+              <p className="max-w-3xl mx-auto px-4 mt-4 text-xs text-gray-500">
+                책 목록을 불러오는 중입니다...
+              </p>
+            )}
+
+            {!loading && error && (
+              <p className="max-w-3xl mx-auto px-4 mt-4 text-xs text-red-500">
+                {error}
+              </p>
+            )}
+
+            {/* ✅ 검색어가 있을 때만 테이블 출력 */}
+            {!loading && !error && (
+              <BookTable books={books} keyword={keyword} />
+            )}
+
+            <CommentBox onAdd={addComment} />
+          </main>
+
+          <footer className="text-center text-[11px] text-gray-400 pb-4">
+            © 2025 책바의 서재
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
