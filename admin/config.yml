@@ -1,8 +1,25 @@
 backend:
   name: git-gateway
   branch: main
-  identity_url: https://chaegbarlibrary.netlify.app/.netlify/identity
-  gateway_url: https://chaegbarlibrary.netlify.app/.netlify/git
 
-media_folder: "data/uploads"
-public_folder: "/data/uploads"
+media_folder: "static/uploads"
+public_folder: "/uploads"
+
+collections:
+  - name: "books"
+    label: "Books"
+    label_singular: "Book"
+    editor:
+      preview: false
+    files:
+      - file: "data/books.json"
+        label: "책 목록"
+        name: "books"
+        fields:
+          - label: "Books"
+            name: "books"
+            widget: "list"
+            fields:
+              - { label: "제목", name: "title", widget: "string" }
+              - { label: "저자", name: "author", widget: "string" }
+              - { label: "위치", name: "location", widget: "string" }
